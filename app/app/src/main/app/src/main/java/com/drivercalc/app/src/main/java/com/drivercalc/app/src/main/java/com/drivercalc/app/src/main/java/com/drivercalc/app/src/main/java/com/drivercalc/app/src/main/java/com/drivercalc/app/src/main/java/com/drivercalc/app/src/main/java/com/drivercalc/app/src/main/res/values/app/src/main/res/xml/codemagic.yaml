@@ -1,32 +1,13 @@
 workflows:
-  android-workflow:
-    name: Android Workflow
+  android-build:
+    name: Build APK
     max_build_duration: 60
     environment:
-      android_signing:
-        - keystore_reference
-      groups:
-        - google_play
-      vars:
-        PACKAGE_NAME: "com.drivercalc"
       java: 17
     scripts:
-      - name: Set up local.properties
+      - name: Build APK
         script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
-      - name: Build Android release
-        script: |
-          LATEST_GOOGLE_PLAY_BUILD_NUMBER=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME")
-          if [ -z "$LATEST_GOOGLE_PLAY_BUILD_NUMBER" ]; then
-              UPDATED_BUILD_NUMBER=$BUILD_NUMBER
-          else
-              UPDATED_BUILD_NUMBER=$(($LATEST_GOOGLE_PLAY_BUILD_NUMBER + 1))
-          fi
-          cd . && ./gradlew bundleRelease
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
     artifacts:
-      - app/build/outputs/**/*.apk
-      - app/build/outputs/**/*.aab
-    publishing:
-      email:
-        recipients:
-          - seu_email@gmail.com
+      - app/build/outputs/apk/debug/*.apk
